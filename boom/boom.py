@@ -1,49 +1,52 @@
-import time
+from time import sleep
 import random
 from tkinter import *
 
-class Bomba:
-    def __init__(self, płótno):
-        self.płótno = płótno
-        self.id = self.płótno.create_oval(0, 0, 48, 48, fill='black')
-        self.płótno.move(self.id, 10, 0)
-        self.y = 0
-        self.płótno.bind_all('<KeyPress-Up>', self.góra)
-        self.płótno.bind_all('<KeyPress-s>', self.dół)
 
-    def rysuj(self):
-        self.płótno.move(self.id, 0, self.y)
-        pozycja = self.płótno.coords(self.id)
-        if pozycja[1] <= 0 or pozycja[3] >= 400:
+class Bomb:
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.id = self.canvas.create_oval(0, 0, 48, 48, fill='black')
+        self.canvas.move(self.id, 10, 0)
+        self.y = 0
+        self.canvas.bind_all('<KeyPress-Up>', self.up)
+        self.canvas.bind_all('<KeyPress-s>', self.down)
+
+    def draw(self):
+        self.canvas.move(self.id, 0, self.y)
+        position = self.canvas.coords(self.id)
+        if position[1] <= 0 or position[3] >= 400:
             self.y = 0
 
-    def góra(self, zdarzenie):
-        pozycja = self.płótno.coords(self.id)
-        if pozycja[3] >= 400:
+    def up(self, event):
+        position = self.canvas.coords(self.id)
+        if position[3] >= 400:
             self.y = -8
         
-    def dół(self, zdarzenie):
-        pozycja = self.płótno.coords(self.id)
-        if pozycja[1] <= 0:
+    def down(self, event):
+        position = self.canvas.coords(self.id)
+        if position[1] <= 0:
             self.y = 8
 
+
 class Restart:
-    def __init__(self, płótno):
-        self.płótno = płótno
-        self.płótno.bind_all('<KeyPress-Return>', self.reset)
-        self.kont = False
+    def __init__(self, canvas):
+        self.canvas = canvas
+        self.canvas.bind_all('<KeyPress-Return>', self.reset)
+        self.cont = False
 
-    def reset(self, zdarzenie):
-        self.kont = True
+    def reset(self, event):
+        self.cont = True
 
-def odl_prz(przetrzymanie):
-    if przetrzymanie >= 0 and przetrzymanie < 50:
+
+def count_hold(hold):
+    if hold >= 0 and hold < 50:
         return  4
-    elif przetrzymanie < 100 and przetrzymanie >=50:
+    elif hold < 100 and hold >=50:
         return 3
-    elif przetrzymanie < 150 and przetrzymanie >=100:
+    elif hold < 150 and hold >=100:
         return 2
-    elif przetrzymanie < 200 and przetrzymanie >=150:
+    elif hold < 200 and hold >=150:
         return 1
     else:
         return 0
@@ -52,74 +55,74 @@ tk = Tk()
 tk.title('Gra w Bombe')
 tk.resizable(0, 0)
 tk.wm_attributes('-topmost', 1)
-płótno = Canvas(tk, width=400, height=400, bd=0, highlightthickness=0)
-płótno.pack()
+canvas = Canvas(tk, width=400, height=400, bd=0, highlightthickness=0)
+canvas.pack()
 tk.update()
 
-płótno.create_rectangle(0, 0, 400, 200, fill='blue', outline='blue')
-płótno.create_rectangle(0, 201, 400, 400, fill='yellow', outline='yellow')
-płótno.create_line(0, 200, 400, 200)
-płótno.create_line(0, 201, 400, 201)
-czas = płótno.create_text(370, 25, font=('Arial', 24),text='')
-odliczanie = płótno.create_text(200, 25, font=('Arial', 24),text='')
-boom = płótno.create_text(200, 200, font=('Arial', 50), text='')
-odliczanie_przetrzymanie = płótno.create_text(370, 225, font=('Arial', 24),text='')
-restart = Restart(płótno)
-bomba = Bomba(płótno)
+canvas.create_rectangle(0, 0, 400, 200, fill='blue', outline='blue')
+canvas.create_rectangle(0, 201, 400, 400, fill='yellow', outline='yellow')
+canvas.create_line(0, 200, 400, 200)
+canvas.create_line(0, 201, 400, 201)
+time = canvas.create_text(370, 25, font=('Arial', 24),text='')
+counting = canvas.create_text(200, 25, font=('Arial', 24),text='')
+boom = canvas.create_text(200, 200, font=('Arial', 50), text='')
+counting_hold = canvas.create_text(370, 225, font=('Arial', 24),text='')
+restart = Restart(canvas)
+bomb = Bomb(canvas)
 
 while 1:
  
  for i in range(1, 6):
-     płótno.itemconfig(odliczanie, text=6-i)
+     canvas.itemconfig(counting, text=6-i)
      tk.update()
-     time.sleep(1)
- płótno.itemconfig(odliczanie, text='')
+     sleep(1)
+ canvas.itemconfig(counting, text='')
  tk.update()
 
  x = 0
 
  while 1:
     
-    przetrzymanie = -1
+    hold = -1
     while 1:
 
         x=x+1
         y = 1001-x
         
-        bomba.rysuj()
-        płótno.itemconfig(czas, text=y)
+        bomb.draw()
+        canvas.itemconfig(time, text=y)
         tk.update_idletasks()
         tk.update()
-        time.sleep(0.02)
-        restart.kont = False
-        przetrzymanie = przetrzymanie + 1
-        pozycja = płótno.coords(bomba.id)
-        płótno.itemconfig(odliczanie_przetrzymanie, text=odl_prz(przetrzymanie))
+        sleep(0.02)
+        restart.cont = False
+        hold = hold + 1
+        position = canvas.coords(bomb.id)
+        canvas.itemconfig(counting_hold, text=count_hold(hold))
         tk.update()
-        if pozycja[1] >= 160 and pozycja[3] <= 240 :
+        if position[1] >= 160 and position[3] <= 240 :
             break
-        if y==0 or przetrzymanie == 200:
+        if y==0 or hold == 200:
             break
         
-    if y==0 or przetrzymanie == 200:
+    if y==0 or hold == 200:
         break
 
  while 1:
      
-    pozycja = płótno.coords(bomba.id)
-    if pozycja[1] >= 201 or pozycja[3] <= 200:
-        płótno.itemconfig(boom, text='BOOM')
+    position = canvas.coords(bomb.id)
+    if position[1] >= 201 or position[3] <= 200:
+        canvas.itemconfig(boom, text='BOOM')
     else:
-        płótno.itemconfig(boom, text='REMIS')
+        canvas.itemconfig(boom, text='DRAW')
     tk.update_idletasks()
     tk.update()
 
-    if restart.kont == True:
-        płótno.itemconfig(boom, text='')
+    if restart.cont == True:
+        canvas.itemconfig(boom, text='')
         tk.update()
         break
 
     else:
         continue
 
- restart.kont = False
+ restart.cont = False
