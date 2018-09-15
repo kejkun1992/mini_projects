@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import sys, random
+import sys, random, time
 
 
 def number_of_digits():
     # player chooses number of digits in each of multiplied numbers
     num = input('Test start. Choose number of digits in each of multiplied numbers(1-10): ')
     try:
-        if int(num) > 10 and int(num) < 1:
+        if int(num) > 10 or int(num) < 1:
             print('Wrong value. Bye')
             sys.exit()
         return int(num)
@@ -18,9 +18,9 @@ def number_of_digits():
 
 def number_of_numbers():
     # player chooses number of numbers to multiply
-    num = input('Choose number of numbers to multiply(1-5): ')
+    num = input('Choose number of numbers to multiply(2-5): ')
     try:
-        if int(num) > 5 and int(num) < 1:
+        if int(num) > 5 or int(num) < 2:
             print('Wrong value. Bye')
             sys.exit()
         return int(num)
@@ -55,7 +55,23 @@ def random_operation(num_of_digits: int, num_of_nums: int) -> str:
 def main():
     num_of_digits = number_of_digits()
     num_of_nums = number_of_numbers()
-    operation = random_operation(num_of_digits, num_of_nums)
+    for i in range(3):
+        operation = random_operation(num_of_digits, num_of_nums)
+        t1 = time.time()
+        result = input(operation + ' = ')
+        try:
+            if int(result) == eval(operation):
+                # saves user's time if result is good
+                t2 = time.time()
+                t = t2 - t1
+                with open('results\\results.txt', 'at') as results:
+                    print(round(t, 1), file=results)
+            else:
+                print('Wrong answer')
+        except ValueError:
+            print('Wrong value. Bye')
+            sys.exit()
+        
     
 if __name__ == '__main__':        
     main()
