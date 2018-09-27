@@ -10,6 +10,8 @@ guess_number - Guess the number from 1 to 100.
 
 menu - A simple menu for games in Tkinter.
 
+multiplication_in_memory - practice multiplication effectively.
+
 polygons - An app drawing regular polygons and oddly-armed stars.
 
 pong - A classic pong game for two players.
